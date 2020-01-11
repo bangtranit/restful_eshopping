@@ -5,15 +5,18 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable, softDeletes;
     const VERIFIED_USER = '1';
     const UNVERIFIED_USER = '0';
 
     const ADMIN_USER = 'true';
     const REGULAR_USER = 'false';
+
+    protected $dates = ['deleted_at'];
 
     protected $table = 'users';
     /**
@@ -49,6 +52,18 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function setNameAttribute($name){
+        $this->attributes['name'] = strtoupper($name);
+    }
+
+    public function getNameAttribute($name){
+        return ucwords($name);
+    }
+
+    public function setEmail¥Attribute($email){
+        $this->attributes['email'] = strtolower($email);
+    }
 
     public function isVerified(){
         return $this->verified == User::VERIFIED_USER;

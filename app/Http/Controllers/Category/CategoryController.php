@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Category;
 
+use App\Category;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\intersect;
+use App\Http\Controllers\ApiController;
 
-class CategoryController extends Controller
+class CategoryController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -15,6 +17,8 @@ class CategoryController extends Controller
     public function index()
     {
         //
+        $categories = Category::all();
+        return $this->showAll($categories, 200);
     }
 
     /**
@@ -36,26 +40,37 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         //
+        // echo "<pre>";
+        // print_r($request->all());
+        // echo "</pre>";
+        $rules = [
+            'name' => 'required',
+            'description' => 'required',
+        ];
+        $this->validate($request, $rules);
+        $newCategory = Category::create($request->all());
+        return $this->showOne($newCategory);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Category $category)
     {
         //
+        return $this->showOne($category);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Category $category)
     {
         //
     }
@@ -64,22 +79,32 @@ class CategoryController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Category $category)
     {
         //
+        $category->fill($request->only([
+            'name', 
+            'description',
+        ]));
+        if ($category->isClean()) {
+            return $this->showDirtyResponse();
+        }
+        $category->save();
+        return $this->showOne($category);            
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Category $category)
     {
-        //
+        $category->delete();
+        return $this->showMessageSuccess('Delete category successfully');
     }
 }
