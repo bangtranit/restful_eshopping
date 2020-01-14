@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Transformers\UserTransformer;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -15,10 +16,12 @@ class User extends Authenticatable
 
     const ADMIN_USER = 'true';
     const REGULAR_USER = 'false';
+    
+    public $transformer = UserTransformer::class;
 
     protected $dates = ['deleted_at'];
-
     protected $table = 'users';
+
     /**
      * The attributes that are mass assignable.
      *

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Mail;
 
 Route::get('/', function () {
 	// return view('welcome');
-	$to_name = 'thangbang';
+	$to_name = 'bangtran098@gmail.com';
 	$to_email = 'thanhbang.it.dn2000@gmail.com';
 	$data = array('name' => 'bang test mail', 'body' => 'body bang test mail');
 	Mail::send('mail', $data, function($message) use ($to_name, $to_email){
