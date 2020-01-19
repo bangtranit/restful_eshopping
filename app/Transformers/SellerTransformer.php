@@ -21,6 +21,33 @@ class SellerTransformer extends TransformerAbstract
             'creationDate' => (string)$seller->created_at,
             'lastchange' => (string)$seller->updated_at,
             'deleteDate' => isset($seller->deleted_at) ? (string)$seller->deleted_at : null,
+
+            'links' => [
+                [
+                    'rel' => 'self',
+                    'href' => route('sellers.show', $seller->id),
+                ],
+                [
+                    'rel' => 'sellers.buyers',
+                    'href' => route('sellers.buyers.index', $seller->id),
+                ],
+                [
+                    'rel' => 'sellers.categories',
+                    'href' => route('sellers.categories.index', $seller->id),
+                ],
+                [
+                    'rel' => 'sellers.products',
+                    'href' => route('sellers.products.index', $seller->id),
+                ],
+                [
+                    'rel' => 'sellers.transactions',
+                    'href' => route('sellers.transactions.index', $seller->id),
+                ],
+                [
+                    'rel' => 'sellers.show',
+                    'href' => route('sellers.show', $seller->id),
+                ]
+            ]
         ];
     }
     
@@ -36,4 +63,26 @@ class SellerTransformer extends TransformerAbstract
         ];
         return isset($attributes[$index]) ? $attributes[$index] : null;
     }
+
+    public static function tranformedAttribute($index){
+        $attributes = [
+            'id' => 'identifier',
+            'name' => 'name',
+            'email' => 'email',
+            'verified' => 'isVerified',
+            'created_at' => 'creationDate',
+            'updated_at' => 'lastchange',
+            'deleted_at' => 'deleteDate',
+        ];
+        return isset($attributes[$index]) ? $attributes[$index] : null;
+    }
+
+
+
+
+
+
+
+
+
 }

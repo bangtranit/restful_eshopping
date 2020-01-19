@@ -9,6 +9,14 @@ use App\Http\Controllers\ApiController;
 
 class ProductCategoryController extends ApiController
 {
+    public function __construct(){
+        // parent::__construct();
+        $this->middleware('client.credentials')->only(['index']);
+        $this->middleware('auth:api')->except(['index']);
+        $this->middleware('scope:manage-products')->except(['index']);
+    }
+
+   
     /**
      * Display a listing of the resource.
      *

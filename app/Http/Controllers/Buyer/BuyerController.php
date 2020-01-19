@@ -7,6 +7,11 @@ use App\Http\Controllers\ApiController;
 
 class BuyerController extends ApiController
 {
+    public function __construct(){
+        $this->middleware('auth:api');
+//        $this->middleware('can:view, buyer')->only(['show']);
+//        $this->middleware('read-general')->only(['index']);
+    }
     /**
      * Display a listing of the resource.
      *

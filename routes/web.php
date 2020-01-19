@@ -11,25 +11,45 @@ use Illuminate\Support\Facades\Mail;
 |
 */
 
-Route::get('/', function () {
-	// return view('welcome');
-	$to_name = 'bangtran098@gmail.com';
-	$to_email = 'thanhbang.it.dn2000@gmail.com';
-	$data = array('name' => 'bang test mail', 'body' => 'body bang test mail');
-	Mail::send('mail', $data, function($message) use ($to_name, $to_email){
-		$message->to($to_name)
-		->subject('laravel send mail subject');
-	});
-    // return view('welcome');
-});
+// Route::get('/', function () {
+// 	// return view('welcome');
+// 	$to_name = 'bangtran098@gmail.com';
+// 	$to_email = 'thanhbang.it.dn2000@gmail.com';
+// 	$data = array('name' => 'bang test mail', 'body' => 'body bang test mail');
+// 	Mail::send('mail', $data, function($message) use ($to_name, $to_email){
+// 		$message->to($to_name)
+// 		->subject('laravel send mail subject');
+// 	});
+//     // return view('welcome');
+// });
 
+Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');
+Route::post('login', 'Auth\LoginController@login');
+Route::post('logout', 'Auth\LoginController@logout')->name('logout');
+
+// Registration Routes...
+Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
+Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
+Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
+Route::post('password/reset', 'Auth\ResetPasswordController@reset')->name('password.update');
 
 
 //clear cache
-// Route::get('/clear-cache', function() {
-//     Artisan::call('cache:clear');
-//     Artisan::call('route:clear');
-//     Artisan::call('config:clear');
-//     Artisan::call('view:clear');
-//     return "Cache is cleared";
-// });
+Route::get('/clear-cache', function() {
+    Artisan::call('cache:clear');
+    Artisan::call('route:clear');
+    Artisan::call('config:clear');
+    Artisan::call('view:clear');
+    return "Cache is cleared";
+});
+Auth::routes();
+
+Route::get('/home/authorized-clients', 'HomeController@getAuthorizedClients')->name('authorized-clients');
+Route::get('/home/my-clients', 'HomeController@getClients')->name('personal-clients');
+Route::get('/home/my-tokens', 'HomeController@getTokens')->name('personal-tokens');
+
+Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/', function(){
+	return view ('welcome');
+})->middleware('guest');
+

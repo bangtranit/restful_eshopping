@@ -5,11 +5,21 @@ namespace App\Http\Controllers\User;
 use App\User;
 use App\Mail\UserCreated;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use App\Transformers\UserTransformer;
 use App\Http\Controllers\ApiController;
 
 class UserController extends ApiController
 {
+    public function __construct(){
+        // parent::__construct();
+//        $this->middleware('client.credentials')->only(['store', 'resend']);
+//        $this->middleware('auth:api')->except(['store', 'verify', 'resend']);
+        $this->middleware('auth:api');
+        $this->middleware('transform.input:' . UserTransformer::class)->only(['store', 'update']);
+        $this->middleware('scope:manage-account')->only(['index', 'store', 'update']);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -34,12 +44,17 @@ class UserController extends ApiController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request)
     {
-        
+
+        // echo "<pre>";
+        // print_r(request()->all());
+        // echo "</pre>";
+
         $rules = [
             'name' => 'required',
             'email' => 'required|email|unique:users',
@@ -49,7 +64,7 @@ class UserController extends ApiController
         $data = $request->all();
         $data['email'] = $request->email;
         $data['name'] = $request->name;
-        $data['password'] = ($request->password);
+        $data['password'] = Hash::make(($request->password));
         $data['verified'] = User::UNVERIFIED_USER;
         $data['verification_token'] = User::generateVerificationCode();
         $data['admin'] = User::REGULAR_USER;
@@ -92,6 +107,9 @@ class UserController extends ApiController
     public function update(Request $request, User $user)
     {
         // $user = User::findOrFail($id);
+        // echo "<pre>";
+        // print_r(request()->all());
+        // echo "</pre>";
         if (!$user) {
             return response()->json(['error' => 'the user is invalid', 'code' => 500], 500);
         }
@@ -100,7 +118,7 @@ class UserController extends ApiController
             'password' => 'min:6|confirmed',
             'admin' => 'in:' . User::ADMIN_USER . ',' . User::REGULAR_USER,
             'verified' => 'in:' . User::VERIFIED_USER . ',' . User::UNVERIFIED_USER,
-        ];    
+        ];
 
         $this->validate($request, $rules);
         if ($request->has('name')) {
@@ -159,7 +177,7 @@ class UserController extends ApiController
         retry(5, function() use ($user){
             Mail::to($user)->send(new UserCreated($user));
         }, 100);
-        
+
         return $this->showMessage('The verification email has been sent');
     }
 }

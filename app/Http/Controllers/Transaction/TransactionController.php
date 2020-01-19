@@ -8,6 +8,12 @@ use App\Http\Controllers\ApiController;
 
 class TransactionController extends ApiController
 {
+    public function __construct(){
+        // parent::__construct();
+        $this->middleware('client.credentials')->only(['index']);
+        $this->middleware('auth:api')->except(['index']);
+//        $this->middleware('read-general')->only(['index']);
+    }
     /**
      * Display a listing of the resource.
      *

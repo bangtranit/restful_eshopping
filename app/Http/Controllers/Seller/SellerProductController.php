@@ -4,15 +4,24 @@ namespace App\Http\Controllers\Seller;
 
 use App\Seller;
 use App\Product;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\Storage;
+use App\Transformers\ProductTransformer;
 use App\Http\Requests\Seller\StoreSellerProduct;
 use App\Http\Requests\Seller\UpdateSellerProduct;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class SellerProductController extends ApiController
 {
+    public function __construct(){
+        // parent::__construct();
+        $this->middleware('transform.input:' . ProductTransformer::class)->only(['store', 'update']);
+        $this->middleware('auth:api')->except(['store', 'update']);
+        $this->middleware('scope:manage-products')->only(['store', 'update']);
+        $this->middleware('scope:read-general')->only(['index']);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -21,11 +30,16 @@ class SellerProductController extends ApiController
     public function index(Seller $seller)
     {
         //
-        $products = $seller->products()
-            ->get()
-            ->unique('id')
-            ->values();
-        return $this->showAll($products);
+        if (request()->user()->tokenCan('read-general') ||
+            request()->user->tokenCan('manage-products'))
+        {
+            $products = $seller->products()
+                ->get()
+                ->unique('id')
+                ->values();
+            return $this->showAll($products);
+        }
+        throw new AuthorizationException('Invalid scope(s)');
     }
 
     /**

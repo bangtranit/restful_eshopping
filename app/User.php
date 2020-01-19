@@ -1,7 +1,7 @@
 <?php
 
 namespace App;
-
+use Laravel\Passport\HasApiTokens;
 use App\Transformers\UserTransformer;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
-    use Notifiable, softDeletes;
+    use Notifiable, HasApiTokens, softDeletes;
     const VERIFIED_USER = '1';
     const UNVERIFIED_USER = '0';
 
